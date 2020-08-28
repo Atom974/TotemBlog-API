@@ -40,7 +40,7 @@ export class Routes {
             .route("/articlesearch/:id") // route pour la search bar (noToken)
             .get(this.articleCtrl.search)
         app
-            .route("/articleg")  //generation d'un Article Admin
+            .route("/articleg")  //generation d'un Article Admin (Si l'admin existe deja)
             .get(this.articleCtrl.init)
         app
             .route("/tags")
