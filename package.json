@@ -7,7 +7,8 @@
     "build": "tsc",
     "dev": "ts-node ./server/server.ts",
     "start": "nodemon ./dist/server.js",
-    "prod": "npm run build && npm run start"
+    "prod": "npm run build && npm run start",
+    "eslint": "eslint ./"
   },
   "author": "Tom",
   "license": "ISC",
@@ -27,6 +28,7 @@
   },
   "devDependencies": {
     "@types/bluebird": "^3.5.32",
+    "@types/dotenv": "^8.2.0",
     "@types/express": "^4.17.7",
     "@types/jsonwebtoken": "^8.5.0",
     "@types/jwt-simple": "^0.5.33",
@@ -35,6 +37,11 @@
     "@types/node": "^14.6.0",
     "@types/sequelize": "^4.28.9",
     "@types/validator": "^13.1.0",
+    "@typescript-eslint/eslint-plugin": "^4.0.1",
+    "@typescript-eslint/parser": "^4.0.1",
+    "eslint": "^7.8.1",
+    "eslint-config-airbnb-base": "^14.2.0",
+    "eslint-plugin-import": "^2.22.0",
     "morgan": "^1.10.0",
     "nodemon": "^2.0.4",
     "ts-node": "^8.10.2",

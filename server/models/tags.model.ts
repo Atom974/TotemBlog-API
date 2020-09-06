@@ -1,4 +1,4 @@
-import { Model, DataTypes, Sequelize } from "sequelize";
+import { Model, DataTypes} from "sequelize";
 import { database } from "../config/database";
 
 export class Tag extends Model {
@@ -14,27 +14,27 @@ export interface TagsInterface {
 }
 
 Tag.init(
-    {
-        id: {
-            type: DataTypes.INTEGER.UNSIGNED,
-            autoIncrement: true,
-            primaryKey: true
-        },
-        name : {
-            type: DataTypes.STRING,
-            allowNull: false
-        },
-        articleId : {
-            type: DataTypes.INTEGER.UNSIGNED,
-            allowNull: false
-        },
-    },
-    {
-        tableName: "tags",
-        sequelize: database
-    }
-)
+	{
+		id: {
+			type: DataTypes.INTEGER.UNSIGNED,
+			autoIncrement: true,
+			primaryKey: true
+		},
+		name : {
+			type: DataTypes.STRING,
+			allowNull: false
+		},
+		articleId : {
+			type: DataTypes.INTEGER.UNSIGNED,
+			allowNull: false
+		},
+	},
+	{
+		tableName: "tags",
+		sequelize: database
+	}
+);
 
 Tag.sync({force: true})
-.then(() => console.log("Tags table created"))
-.catch(() => console.log("something Wrong witg Db Tags"));
+	.then(() => console.log("Tags table created"))
+	.catch(() => console.log("something Wrong witg Db Tags"));

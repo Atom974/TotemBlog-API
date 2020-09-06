@@ -23,73 +23,73 @@ export class Pass extends Model {
 }
 
 User.init(
-    {
-        id: {
-            type: DataTypes.INTEGER.UNSIGNED,
-            autoIncrement: true,
-            primaryKey: true
-        },
-        pseudo: {
-            type: DataTypes.STRING(32),
-            allowNull: false
-        },
-        email: {
-            type: DataTypes.STRING(128),
-            allowNull: false,
-            validate: {
-                isEmail: true
-            }
-        },
-        avatarPath: {
-            type: DataTypes.STRING(128),
-        },
-        isAdmin: {
-            type: DataTypes.BOOLEAN,
-            defaultValue: false,
-            allowNull: false
-        }
-    },
-    {
-        tableName: "users",
-        sequelize: database
-    }
+	{
+		id: {
+			type: DataTypes.INTEGER.UNSIGNED,
+			autoIncrement: true,
+			primaryKey: true
+		},
+		pseudo: {
+			type: DataTypes.STRING(32),
+			allowNull: false
+		},
+		email: {
+			type: DataTypes.STRING(128),
+			allowNull: false,
+			validate: {
+				isEmail: true
+			}
+		},
+		avatarPath: {
+			type: DataTypes.STRING(128),
+		},
+		isAdmin: {
+			type: DataTypes.BOOLEAN,
+			defaultValue: false,
+			allowNull: false
+		}
+	},
+	{
+		tableName: "users",
+		sequelize: database
+	}
 );
 Pass.init({
-    id: {
-        type: DataTypes.INTEGER.UNSIGNED,
-        autoIncrement: true,
-        primaryKey: true
-    },
-    password: {
-        type: DataTypes.STRING(128),
-        allowNull: false
-    },
-    ownerId : {
-        type: DataTypes.INTEGER.UNSIGNED,
-        allowNull: false
-    }
+	id: {
+		type: DataTypes.INTEGER.UNSIGNED,
+		autoIncrement: true,
+		primaryKey: true
+	},
+	password: {
+		type: DataTypes.STRING(128),
+		allowNull: false
+	},
+	ownerId : {
+		type: DataTypes.INTEGER.UNSIGNED,
+		allowNull: false
+	}
 }, {
-        tableName: "password",
-        sequelize: database
-    });
+	tableName: "password",
+	sequelize: database
+});
 
 User.hasOne(Pass, {
-    foreignKey: 'ownerId'
+	foreignKey: "ownerId"
 });
 Pass.belongsTo(User);
 User.hasMany(Article, {
-    sourceKey: "id",
-    foreignKey: "userId",
-})
+	sourceKey: "id",
+	foreignKey: "userId",
+});
 Article.belongsTo(User);
 
 Pass.sync({ force: true })
-    .then(() => console.log("pass table created"))
-    .catch(() => console.log("something Wrong with Db Pass"));
+	.then(() => console.log("pass table created"))
+	.catch(() => console.log("something Wrong with Db Pass"));
 
 User.sync({ force: true })
-    .then(() => console.log("users table created"))
-    .catch(() => console.log("something Wrong with Db User"));
+	.then(() => console.log("users table created"))
+	.catch(() => console.log("something Wrong with Db User"));
 
 export interface PassInterface {
     password: string;
