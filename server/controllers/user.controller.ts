@@ -1,10 +1,11 @@
 import { Request, Response, NextFunction } from "express";
-import { User, UserInterface, LogInterface, createInterface, Pass, PassInterface } from "../models/user.model";
+import { User, UserInterface, Pass, PassInterface } from "../models/user.model";
 import { UpdateOptions, DestroyOptions, FindOptions } from "sequelize";
 import * as bcrypt from "bcrypt";
 import * as jwt from "jsonwebtoken";
 import multer from "multer";
 import { Commentaire } from "../models/commentaire.model";
+import { STOKEN } from "../config/config";
 
 
 
@@ -42,14 +43,15 @@ export class UserController {
 				res.status(500).json({ Error: ["Wrong File"] });
 			} else {
 				if (!params.filepath)
-					req.body.avatarPath = "noavatar.png";
-				else
+					req.body.hasAvatar = false;
+				else {
 					req.body.avatarPath = params.filepath;
+					req.body.hasAvatar = true;
+				}
 				next();
 			}
 		});
 	}
-
 
 
 	public async init(req: Request, res: Response) : Promise<void> {
@@ -61,8 +63,8 @@ export class UserController {
 				isAdmin: true,
 				avatarPath: "noavatar.png"
 			};
-			await UserController.emailIsFree(initUser.email);
-			await UserController.pseudoIsFree(initUser.pseudo);
+			//await UserController.emailIsFree(initUser.email);
+			//await UserController.pseudoIsFree(initUser.pseudo);
 			const user = await User.create<User>(initUser);
 			const passInit: PassInterface = {
 				password: bpwd,
@@ -137,36 +139,47 @@ export class UserController {
 				.catch((err: Error) => reject(err));
 		});
 	}
+	static returnLoggedUser(userData: UserInterface): Promise<UserInterface> {
+		return new Promise((resolve) => {
+			if (!STOKEN)
+				throw "Error: ['something wrong pls try later']";
+			const token = jwt.sign({
+				pseudo: userData.pseudo,
+				email: userData.email,
+				isAdmin: userData.isAdmin,
+				id: userData.id,
+				date: Date.now()
+			}, STOKEN);
+			resolve({
+				token: token,
+				pseudo: userData.pseudo,
+				email: userData.email,
+				avatarPath: userData.avatarPath
+			});
+		});
+	}
 
 	public async create(req: Request, res: Response): Promise<void> {
 		try {
-			const params: createInterface = req.body;
-			const pass = req.body.password;
-			const secret: jwt.Secret = "$2y$12$XWnTlev/9oCSySq0zoCfDOHcbZy9NV5Ynsli9XWMiq";
-			await UserController.emailIsFree(params.email);
-			await UserController.pseudoIsFree(params.pseudo);
-			const bpwd = await bcrypt.hash(pass, 5);
-			const user = await User.create<User>(params);
+			if (!req.body.hasAvatar)
+				req.body.avatarPath = "noavatar.png";
+			const newUser =	{
+				pseudo: req.body.user.pseudo,
+				email: req.body.user.email,
+				avatarPath: req.body.avatarPath,
+				isAdmin: false
+			};
+			const bpwd = await bcrypt.hash(req.body.user.Pass.password, 5);
+			const user = await User.create<User>(newUser);
 			const passInit: PassInterface = {
 				password: bpwd,
 				ownerId: user.id
 			};
 			await Pass.create<Pass>(passInit);
-			const token = jwt.sign({
-				pseudo: user.pseudo,
-				email: user.email,
-				isAdmin: user.isAdmin,
-				date: Date.now()
-			}, secret);
-			const ret = {
-				token: token,
-				pseudo: user.pseudo,
-				email: user.email,
-				avatarPath: user.avatarPath
-			};
-			res.status(201).json(ret);
+			const loggedUser = await UserController.returnLoggedUser(user);
+			res.status(201).json(loggedUser);
 		} catch (err) {
-			if (err.name === "SequelizeValidationError")
+			if (err?.errors)
 				res.status(500).json({ Error: [err.errors[0].message] });
 			else {
 				res.status(500).json(err);
@@ -176,7 +189,7 @@ export class UserController {
 
 	public async login(req: Request, res: Response): Promise<void> {
 		try {
-			const params: LogInterface = req.body;
+			const params = req.body;
 
 			const user = await User.findOne<User>({ where: { pseudo: params.pseudo }, include: [Pass] });
 			const secret: jwt.Secret = "$2y$12$XWnTlev/9oCSySq0zoCfDOHcbZy9NV5Ynsli9XWMiq";

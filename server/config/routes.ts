@@ -17,7 +17,7 @@ export class Routes {
 		app
 			.route("/user")
 			.get(this.validator.verifyAdmin, this.userCtrl.index)
-			.post(this.userCtrl.uploadImg, this.validator.inputCreate, this.userCtrl.create);
+			.post(this.userCtrl.uploadImg, this.validator.createUser, this.userCtrl.create);
 		app
 			.route("/generate")// genere un Admin => log=totem pwd=test
 			.get(this.userCtrl.init);

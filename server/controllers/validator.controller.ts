@@ -1,34 +1,47 @@
 import { Request, Response, NextFunction } from "express";
-import { LogInterface } from "../models/user.model";
+import { UserInterface } from "../models/user.model";
 import * as jwt from "jsonwebtoken";
 import { STOKEN } from "../config/config";
 
 export class ValidatorController {
 
-	public inputCreate(req: Request, res: Response, next: NextFunction): void|Response {
-		const params: LogInterface = req.body;
-		if (!params.email || !params.password || !params.pseudo)
+	public createUser(req: Request, res: Response, next: NextFunction): void | Response {
+		const user: UserInterface = {
+			pseudo: req.body.pseudo,
+			email: req.body.email,
+			Pass : {
+				password: req.body.password
+			}
+		};
+		req.body.user = user;
+		if (!user?.email || !user?.Pass|| !user?.pseudo)
 			return res.status(500).send({ Error: ["params missing"] });
-		if (params.email.length < 3 || params.email.length > 127) {
+		if (user.email.length < 3 || user.email.length > 127) {
 			return res.status(500).send({ Error: ["email not correctly formated"] });
 		}
-		if (params.pseudo.length < 3 || params.pseudo.length > 16) {
+		if (user.pseudo.length < 3 || user.pseudo.length > 16) {
 			return res.status(500).send({ Error: ["pseudo not correctly formated"] });
 		}
-		if (params.password.length < 3 || params.password.length > 16) {
+		if (user.Pass.password.length < 3 || user.Pass.password.length > 16) {
 			return res.status(500).send({ Error: ["Password not correctly formated"] });
 		} else {
 			next();
 		}
 	}
-	public inputLog(req: Request, res: Response, next: NextFunction): void|Response {
-		const params: LogInterface = req.body;
-		if (!params.password || !params.pseudo)
+	public inputLog(req: Request, res: Response, next: NextFunction): void | Response {
+		const params: UserInterface = {
+			pseudo: req.body.pseudo,
+			Pass : {
+				password: req.body.password
+			}
+		};
+		req.body.user = params;
+		if (!params?.Pass|| !params?.pseudo)
 			return res.status(500).send({ Error: ["params missing"] });
 		if (params.pseudo.length < 3 || params.pseudo.length > 16) {
 			return res.status(500).send({ Error: ["pseudo not correctly formated"] });
 		}
-		if (params.password.length < 3 || params.password.length > 16) {
+		if (params.Pass.password.length < 3 || params.Pass.password.length > 16) {
 			return res.status(500).send({ Error: ["Password not correctly formated"] });
 		}
 		next();
@@ -40,7 +53,7 @@ export class ValidatorController {
 			res.status(403).send({ Error: ["No token provided."] });
 			return;
 		}
-		if (STOKEN !== undefined){
+		if (STOKEN !== undefined) {
 			jwt.verify(token.toString(), STOKEN, function (err, decoded) {
 				if (err)
 					res.status(500).send({ Error: ["Failed to authenticate token."] });
@@ -49,10 +62,10 @@ export class ValidatorController {
 			});
 		}
 	}
-	public verifyAdmin(req: Request, res: Response, next: NextFunction):void  {
+	public verifyAdmin(req: Request, res: Response, next: NextFunction): void {
 		const token = req.headers["x-access-token"];
 		const secret: jwt.Secret = "$2y$12$XWnTlev/9oCSySq0zoCfDOHcbZy9NV5Ynsli9XWMiq";
-		if (!token){
+		if (!token) {
 			res.status(403).send({ Error: ["No token provided."] });
 			return;
 		}
@@ -61,8 +74,8 @@ export class ValidatorController {
 				return res.status(500).send({ Error: ["Failed to authenticate token."] });
 			req.body.decoded = decoded;
 			if (!req.body.decoded.isAdmin)
-				return res.status(500).json({ Error : ["Youre not allowed to be here " ]});
-            
+				return res.status(500).json({ Error: ["Youre not allowed to be here "] });
+
 			next();
 		});
 	}

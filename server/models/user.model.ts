@@ -8,7 +8,7 @@ export class User extends Model {
     public email!: string;
     public isAdmin!: boolean;
     public avatarPath!: string;
-    public Pass?: Pass;
+    public Pass!: Pass;
     public readonly createdAt!: Date;
     public readonly updatedAt!: Date;
 
@@ -31,14 +31,16 @@ User.init(
 		},
 		pseudo: {
 			type: DataTypes.STRING(32),
-			allowNull: false
+			allowNull: false,
+			unique: true
 		},
 		email: {
 			type: DataTypes.STRING(128),
 			allowNull: false,
 			validate: {
 				isEmail: true
-			}
+			},
+			unique: true
 		},
 		avatarPath: {
 			type: DataTypes.STRING(128),
@@ -93,25 +95,16 @@ User.sync({ force: true })
 
 export interface PassInterface {
     password: string;
-    ownerId: number;
+    ownerId?: number;
 }
 
 export interface UserInterface {
+	id?: number;
     pseudo: string;
-    email: string;
+    email?: string;
     token?: string;
     isAdmin?: boolean;
-    avatarPath?: string;
+	avatarPath?: string;
     Pass?: PassInterface;
 }
-export interface createInterface {
-    pseudo: string;
-    email: string;
-    avatarPath: string;
-}
-export interface LogInterface {
-    password: string;
-    pseudo: string;
-    email: string;
-    avatarPath?: string;
-}
+
